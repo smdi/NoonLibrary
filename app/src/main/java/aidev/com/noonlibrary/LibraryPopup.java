@@ -34,7 +34,7 @@ public class LibraryPopup extends DialogFragment {
     public void onViewCreated(@NonNull final View customView, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(customView, savedInstanceState);
 
-
+        TastyToast.makeText(getActivity(), "Welcome to Library", TastyToast.LENGTH_LONG, TastyToast.SUCCESS).show();
         sid = (EditText) customView.findViewById(R.id.studentid);
         bid = (EditText) customView.findViewById(R.id.bookidentry);
         no_od_days = (EditText) customView.findViewById(R.id.noofdays);
