@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/booksborrowed"
+        android:icon="@drawable/booktaken"
+        android:title="BookID" />
+    <item
+        android:id="@+id/studentborrowedbooks"
+        android:icon="@drawable/study"
+        android:title="StudentID" />
+    <item
+        android:id="@+id/library"
+        android:icon="@drawable/book"
+        android:title="Library" />
+    <item
+        android:id="@+id/returnbook"
+        android:icon="@drawable/returnbook"
+        android:title="Return" />
+    <item
+        android:id="@+id/fine"
+        android:icon="@drawable/punishment"
+        android:title="Fine" />
+
+
+
+</menu>
