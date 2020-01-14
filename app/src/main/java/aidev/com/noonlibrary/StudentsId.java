@@ -17,8 +17,9 @@ import android.widget.Toast;
 
 import com.sdsmdg.tastytoast.TastyToast;
 
-//import androidx.annotation.NonNull;
-//import androidx.annotation.Nullable;
+import java.io.File;
+import java.io.RandomAccessFile;
+
 
 public class StudentsId extends Fragment {
 
@@ -39,8 +40,6 @@ public class StudentsId extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        studentidpopup dialogFragment = new studentidpopup();
-//        dialogFragment.show(((FragmentActivity)getActivity()).getSupportFragmentManager(), "OpenPopup");
 
         sid = (EditText) view.findViewById(R.id.studentidsip);
         find = (Button) view.findViewById(R.id.findbooks);
@@ -54,7 +53,6 @@ public class StudentsId extends Fragment {
                 String lsid = sid.getText().toString();
 
                 if(lsid.length()>0){
-//                    Toast.makeText(getActivity(),""+Integer.parseInt(lsid),Toast.LENGTH_SHORT).show();
                     getAllData(Integer.parseInt(lsid));
                 }
 
@@ -65,16 +63,23 @@ public class StudentsId extends Fragment {
     private void getAllData( int sid) {
 
         try{
-            SharedPreferences prefs1 = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE);
-            String csid = prefs1.getString("bid", "No list available");//"No name defined" is the default value.
-            String s =  new String(csid);
-            String spl[] = s.split("-");
-            String books = "";
-            for(String w :spl){
+//            SharedPreferences prefs1 = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE);
+//            String csid = prefs1.getString("bid", "No list available");//"No name defined" is the default value.
 
-                books = books + getBookName(w) + ",";
-            }
-            if(csid.length() >1){
+
+            File f1 = new File(getActivity().getFilesDir(), sid+borrowData+".txt");
+            RandomAccessFile raf1 = new RandomAccessFile(f1,"rw");
+            String csid = getNo(raf1);
+
+            if(csid.length() >0){
+
+                String s =  new String(csid);
+                String spl[] = s.split("-");
+                String books = "";
+                for(String w :spl){
+
+                    books = books + getBookName(w) + ",";
+                }
                 list.setText(books);
             }
             else{
@@ -120,4 +125,27 @@ public class StudentsId extends Fragment {
         return  "No list available";
 
     }
+    private String getNo(RandomAccessFile raf){
+
+        int val = 0;
+        String v = "";
+        try {
+            v = raf.readUTF();
+            if (!(v.length() > 0)) {
+                return "No";
+            } else
+                return v;
+
+        }
+        catch (Exception e){
+            val = 1;
+        }
+        if(val == 1){
+            return  "No";
+        }
+        else {
+            return  v;
+        }
+    }
+
 }

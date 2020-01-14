@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.sdsmdg.tastytoast.TastyToast;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +33,7 @@ public class ReturnBooks extends Fragment {
     private Button borrow;
     private String borrowData = "BorrowData";
     private TextView fine;
+    DatabaseHelper db ;
 
     @Nullable
     @Override
@@ -43,9 +46,8 @@ public class ReturnBooks extends Fragment {
     public void onViewCreated(@NonNull View customView, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(customView, savedInstanceState);
 
-//        returnpopup dialogFragment = new returnpopup();
-//        dialogFragment.show(((FragmentActivity)getActivity()).getSupportFragmentManager(), "OpenPopup");
 
+        db= new DatabaseHelper(getActivity());
         sid = (EditText) customView.findViewById(R.id.studentidrp);
         bid = (EditText) customView.findViewById(R.id.bookidentryrp);
         no_od_days = (EditText) customView.findViewById(R.id.noofdaysrp);
@@ -70,15 +72,27 @@ public class ReturnBooks extends Fragment {
     private void getAllData(int sid, int bid, String d1) {
 
         try{
-            SharedPreferences prefs = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE);
-            String cbid = prefs.getString("bid", "No");//"No name defined" is the default value.
+//            SharedPreferences prefs = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE);
+//            String cbid = prefs.getString("bid", "No");//"No name defined" is the default value.
+//
+//            SharedPreferences prefs1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE);
+//            String csid = prefs1.getString("sid", "No");//"No name defined" is the default value.
+//
+//            SharedPreferences prefs2 = getActivity().getSharedPreferences(bid+""+sid, Context.MODE_PRIVATE);
+//            String cdays = prefs2.getString("days", "No");//"No name defined" is the default value.
 
-            SharedPreferences prefs1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE);
-            String csid = prefs1.getString("sid", "No");//"No name defined" is the default value.
 
-            SharedPreferences prefs2 = getActivity().getSharedPreferences(bid+""+sid, Context.MODE_PRIVATE);
-            String cdays = prefs2.getString("days", "No");//"No name defined" is the default value.
+            File f = new File(getActivity().getFilesDir(), sid+borrowData+".txt");
+            RandomAccessFile raf = new RandomAccessFile(f,"rw");
+            String cbid = getNo(raf);
 
+            File f1 = new File(getActivity().getFilesDir(), bid+borrowData+".txt");
+            RandomAccessFile raf1 = new RandomAccessFile(f1,"rw");
+            String csid = getNo(raf1);
+
+            File f2 = new File(getActivity().getFilesDir(), bid+""+sid+".txt");
+            RandomAccessFile raf2 = new RandomAccessFile(f2,"rw");
+            String cdays = getNo(raf2);
 
 
             if(cbid.equals("No")&&csid.equals("No")&&cdays.equals("No")){
@@ -105,26 +119,34 @@ public class ReturnBooks extends Fragment {
                     int days = getDays(d1,d2);
 
 //                    Toast.makeText(getActivity(),""+days,Toast.LENGTH_SHORT).show();
+//
+//                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE).edit();
+//                    editor.putString("bid", str.replace(""+bid+"-",""));
+//                    editor.apply();
+//
+//                    SharedPreferences.Editor editor1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE).edit();
+//                    editor1.putString("sid", str2.replace(""+sid+"-",""));
+//                    editor1.apply();
+//
+//                    SharedPreferences.Editor editor2 = getActivity().getSharedPreferences(bid+""+sid, Context.MODE_PRIVATE).edit();
+//                    editor2.putString("days", str1.replace(""+d2+"-",""));
+//                    editor2.apply();
+//
+//                    SharedPreferences bookcount = getActivity().getSharedPreferences("BookStore", Context.MODE_PRIVATE);
+//                    int count = bookcount.getInt(""+bid, 0);
+//                    count = count+1;
+//
+//                    SharedPreferences.Editor bookcount1 = getActivity().getSharedPreferences("BookStore", Context.MODE_PRIVATE).edit();
+//                    bookcount1.putInt(""+bid,count);
+//                    bookcount1.apply();
 
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences(sid+borrowData, Context.MODE_PRIVATE).edit();
-                    editor.putString("bid", str.replace(""+bid+"-",""));
-                    editor.apply();
+                    raf.writeUTF(str.replace(""+bid+"-",""));
+                    raf1.writeUTF(str2.replace(""+sid+"-",""));
+                    raf2.writeUTF( str1.replace(""+d2+"-",""));
 
-                    SharedPreferences.Editor editor1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE).edit();
-                    editor1.putString("sid", str2.replace(""+sid+"-",""));
-                    editor1.apply();
 
-                    SharedPreferences.Editor editor2 = getActivity().getSharedPreferences(bid+""+sid, Context.MODE_PRIVATE).edit();
-                    editor2.putString("days", str1.replace(""+d2+"-",""));
-                    editor2.apply();
-
-                    SharedPreferences bookcount = getActivity().getSharedPreferences("BookStore", Context.MODE_PRIVATE);
-                    int count = bookcount.getInt(""+bid, 0);
-                    count = count+1;
-
-                    SharedPreferences.Editor bookcount1 = getActivity().getSharedPreferences("BookStore", Context.MODE_PRIVATE).edit();
-                    bookcount1.putInt(""+bid,count);
-                    bookcount1.apply();
+                    int va= db.getBookAvailability(bid)-1;
+                    db.updateNote(bid,va);
 
                     if(days>30){
                         days = days *10;
@@ -145,8 +167,33 @@ public class ReturnBooks extends Fragment {
 
             }
 
-        }catch (Exception e){}
+        }catch (Exception e){
+            TastyToast.makeText(getActivity(), ""+e, Toast.LENGTH_LONG,TastyToast.CONFUSING).show();
+        }
 
+    }
+
+    private String getNo(RandomAccessFile raf){
+
+        int val = 0;
+        String v = "";
+        try {
+            v = raf.readUTF();
+            if (!(v.length() > 0)) {
+                return "No";
+            } else
+                return v;
+
+        }
+        catch (Exception e){
+            val = 1;
+        }
+        if(val == 1){
+            return  "No";
+        }
+        else {
+            return  v;
+        }
     }
 
     private int getDays(String d1, String d2) {

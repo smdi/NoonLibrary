@@ -25,12 +25,12 @@ import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
-    private List<Initialiser> listitem;
+    private List<Store> listitem;
     private Context context;
     private PopupWindow libraryPopup;
 
 
-    public Adapter(Context context, List<Initialiser> listitem) {
+    public Adapter(Context context, List<Store> listitem) {
         this.listitem = listitem;
         this.context = context;
     }
@@ -68,12 +68,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-        Initialiser homeInitialiser = listitem.get(position);
+        Store homeInitialiser = listitem.get(position);
         holder.bookName.setText(" "+homeInitialiser.getBookName());
         holder.bookId.setText(" "+homeInitialiser.getBookId());
-        holder.availability.setText(" "+homeInitialiser.getBookAvalability());
+        holder.availability.setText(" "+homeInitialiser.getAvailability());
         holder.sem.setText(" "+homeInitialiser.getSem());
-        Glide.with(context).load(homeInitialiser.getBookImage()).into(holder.bookImage);
+        Glide.with(context).load(homeInitialiser.getImage()).into(holder.bookImage);
 
         holder.borrow.setOnClickListener(new View.OnClickListener() {
 
@@ -81,7 +81,6 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             public void onClick(View view) {
 
                 LibraryPopup dialogFragment = new LibraryPopup();
-
                 dialogFragment.show(((FragmentActivity)context).getSupportFragmentManager(), "OpenPopup");
 
             }

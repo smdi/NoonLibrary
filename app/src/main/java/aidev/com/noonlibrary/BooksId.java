@@ -18,6 +18,9 @@ import android.widget.Toast;
 
 import com.sdsmdg.tastytoast.TastyToast;
 
+import java.io.File;
+import java.io.RandomAccessFile;
+
 //import androidx.annotation.NonNull;
 //import androidx.annotation.Nullable;
 
@@ -66,9 +69,16 @@ public class BooksId extends Fragment {
     private void getAllData( int bid) {
 
         try{
-            SharedPreferences prefs1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE);
-            String csid = prefs1.getString("sid", "No list available");//"No name defined" is the default value.
-            if(csid.length() >1){
+//            SharedPreferences prefs1 = getActivity().getSharedPreferences(bid+borrowData, Context.MODE_PRIVATE);
+//            String csid = prefs1.getString("sid", "No list available");//"No name defined" is the default value.
+
+
+            File f1 = new File(getActivity().getFilesDir(), bid+borrowData+".txt");
+            RandomAccessFile raf1 = new RandomAccessFile(f1,"rw");
+            String csid = getNo(raf1);
+
+
+            if(csid.length() >0){
                 list.setText(csid);
             }
             else{
@@ -80,4 +90,27 @@ public class BooksId extends Fragment {
 
 
     }
+    private String getNo(RandomAccessFile raf){
+
+        int val = 0;
+        String v = "";
+        try {
+            v = raf.readUTF();
+            if (!(v.length() > 0)) {
+                return "No";
+            } else
+                return v;
+
+        }
+        catch (Exception e){
+            val = 1;
+        }
+        if(val == 1){
+            return  "No";
+        }
+        else {
+            return  v;
+        }
+    }
+
 }
